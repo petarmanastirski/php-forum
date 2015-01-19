@@ -1,0 +1,11 @@
+CREATE TABLE `posts` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `title` varchar(128) COLLATE utf8_bin NOT NULL,
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `content` text COLLATE utf8_bin NOT NULL,
+  `permalink_parent` varchar(128) COLLATE utf8_bin DEFAULT NULL,
+  `author` varchar(128) COLLATE utf8_bin NOT NULL,
+  `permalink` varchar(128) COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `upermalink` (`permalink`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
