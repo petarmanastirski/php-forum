@@ -1,36 +1,31 @@
 <?php
 
 
-require_once 'Database.php';
 
-
-
-class View{
-
-	
+class View
+{
 	private $dtbs;
-	
-	
+
+
 	function __construct()
 	{
-		$this->dtbs = new Database();
+		$this->dtbs = Database::getDatabase();
 	}
-	
-		
+
+
 	function tableThreads()
 	{
 		$content = "";
-		
-		if (($threads = $this->dtbs->getThreads()) && mysql_num_rows($threads) > 0) {
+		if (($threads = $this->dtbs->getThreads()) && count($threads) > 0) {
 			 $content .= '<h1>Threads</h1>';
 			 $content .= '<table border="0" width="" id="posts_list">';
 			 $content .= '<tr>';
 			 $content .= '<th class="title">Title</td>';
 			 $content .= '<th>Date</td>';
-			 $content .= '<th>User</td>'; 	
+			 $content .= '<th>User</td>';
 			 $content .= '</tr>';
-			
-			while ($row = mysql_fetch_assoc($threads)) {			
+
+			foreach ($threads as $row) {
 				$content .= '<tr class="thread">';
 				$content .= '<td class="title">';
 				$content .= '<a href="view_thread.php?permalink=';
@@ -40,18 +35,18 @@ class View{
 				$content .= '<td class="author">'.htmlspecialchars($row['author']).'</td>';
 				$content .= '</tr>';
 			}
-			$content .= '</table>';               
+			$content .= '</table>';
 			return $content;
 		} else {
 			return false;
-		} 
-	} 
-	
-	
+		}
+	}
+
+
 	private function composeTable($post, $firstPost, $numRows)
 	{
 		$htmlTable = "";
-		
+
 		if ($firstPost)
 			$htmlTable .= '<h1>'.htmlspecialchars($post['title']).'</h1>';
 
@@ -61,54 +56,50 @@ class View{
 		$htmlTable .= '		<th>Date</th>';
 		$htmlTable .= '		<th>Author</th>';
 		$htmlTable .= '	</tr>';
-	   	$htmlTable .= '	<tr>'; 
+	   	$htmlTable .= '	<tr>';
 		$htmlTable .= '		<td class="title">'.htmlspecialchars($post['content']).'</td>';
 		$htmlTable .= '		<td class="date">'.htmlspecialchars($post['date']).'</td>';
-		$htmlTable .= '		<td class="author">'.htmlspecialchars($post['author']).'</td>';		 
-		$htmlTable .= '	</tr>'; 	
-		$htmlTable .= '</table>';               
+		$htmlTable .= '		<td class="author">'.htmlspecialchars($post['author']).'</td>';
+		$htmlTable .= '	</tr>';
+		$htmlTable .= '</table>';
 		if ($firstPost && $numRows > 1)
 			$htmlTable .= '<h1>Responses</h1>';
-		
-		return $htmlTable;  		
+
+		return $htmlTable;
 	}
-		
-	
+
+
 	function tableThreadContent($permalink)
 	{
 		$content = "";
-		
+
 		if ($posts = $this->dtbs->getContentThread($permalink)) {
-			$num_rows = mysql_num_rows($posts);   			
-			if ($num_rows > 0) {
-				while($row = mysql_fetch_assoc($posts))
-					$content .= $this->composeTable($row,
-						 							is_null($row['permalink_parent']), 
-													$num_rows); 		
+			foreach ($posts as $row) {
+				$content .= $this->composeTable($row, is_null($row['permalink_parent']), count($posts));
 			}
-			return $content;        
+			return $content;
 		} else {
 			return false;  //database error
-		}	
+		}
 	}
-	
-        
+
+
 	function htmlError($from_view_thread = false)
 	{
 		if ($from_view_thread) {
 			//From view_thread.php
 		   	$html = '<p class="error">There is no thread with this title. Sorry! ';
-			$html .= 'You can go back to <a href="index.php">the main page</a>.</p>'; 
+			$html .= 'You can go back to <a href="index.php">the main page</a>.</p>';
 		}else{
 			// From index.php
 		   	$html = '<p class="error">There aren\'t any threads. Sorry! </p>';
 		}
 		return $html;
 	}
-	
-	
+
+
 	function messageBox($new, $errorHTML = null)
-	{        
+	{
 		$content = '<div id="box_message">';
 		if (!empty($errorHTML)) {
 			$content .= '<div id="message_header"><p class="error">' . $errorHTML . '</p></div>';
@@ -121,17 +112,17 @@ class View{
 		$content .= '<form action="" method="post" id="post_message" accept-charset="utf-8">';
 		if ($new) {
 			$content .= '<input id="input_title" type="text" name="title" value="Title of Thread" size="20" />';
-		}	
+		}
 		$content .= '<input type="text" name="author" value="Your Name" size="30" />';
 		$content .= '<textarea name="content" rows="8" cols="88">Message</textarea>';
 		$content .= '<input type="submit" id="submit_box" value="Post the message" />';
 		$content .= '</form>';
 		$content .= '</div>';
-		
+
 		return $content;
 	}
-	
-	
+
+
 	function buttonPostThread()
 	{
 		return '<div class="newThread">'
