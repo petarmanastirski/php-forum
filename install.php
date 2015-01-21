@@ -2,6 +2,11 @@
 //You are free! - Do what you want - it works :))
 require_once 'classes/Database.php';
 require_once 'header.html';
+
+if ( '' == file_get_contents( 'config.php' ) ){
+} else {
+  header("Location: index.php");
+}
 ?>
 <div id="install">
 <?php
